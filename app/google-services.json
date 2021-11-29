@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "453272893245",
+    "project_id": "basketball-court-crowd-checker",
+    "storage_bucket": "basketball-court-crowd-checker.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:453272893245:android:2f57c9ff415e4d99edb754",
+        "android_client_info": {
+          "package_name": "com.example.basketballcourtcrowdchecker"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "453272893245-daa3p4o8vu73bamremvseh5o3e49k397.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCutaEH_HzAHazyyAEjYo_zyjs4w5XuU3k"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "453272893245-daa3p4o8vu73bamremvseh5o3e49k397.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
