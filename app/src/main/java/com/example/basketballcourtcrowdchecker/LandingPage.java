@@ -1,5 +1,6 @@
 package com.example.basketballcourtcrowdchecker;
 
+import android.accounts.Account;
 import android.app.ListActivity;
 import android.content.Intent;
 import android.os.Bundle;
@@ -163,7 +164,7 @@ public class LandingPage extends AppCompatActivity implements OnMapReadyCallback
                     startActivity(new Intent(getApplicationContext(), LandingPage.class));
                 }
                 else if (id==R.id.nav_account){
-                    //Action here.
+                    startActivity(new Intent(getApplicationContext(), AccountPage.class));
                 }
                 else if (id==R.id.nav_favourites){
                     //Action here.
