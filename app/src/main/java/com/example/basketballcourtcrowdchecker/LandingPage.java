@@ -81,6 +81,7 @@ public class LandingPage extends AppCompatActivity implements OnMapReadyCallback
 
         //Sync ListView.
         String[] locationArray = new String[] {
+                "Court 0",
                 "Court 1",
                 "Court 2",
                 "Court 3",
@@ -108,29 +109,46 @@ public class LandingPage extends AppCompatActivity implements OnMapReadyCallback
         NavigationUI.setupWithNavController(navigationView, navController);
 
 
-        //
+        //When ListView's items are clicked.
         courtListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                //Option 0.
+                if (position==0) {
+                    startActivity(new Intent(getApplicationContext(), CourtPage.class));
+                    System.out.println("Option 0");
+                }
                 //Option 1.
-                if (position==1) {
-                    //Action here.
+                else if (position==1) {
+                    System.out.println("Option 1");
                 }
                 //Option 2.
                 else if (position==2) {
                     //Action here.
+                    System.out.println("Option 2");
                 }
                 //Option 3.
                 else if (position==3) {
                     //Action here.
+                    System.out.println("Option 3");
+                }
+                //Option 4.
+                else if (position==4) {
+                    //Action here.
+                    System.out.println("Option 4");
+                }
+                //Option 5.
+                else if (position==5) {
+                    //Action here.
+                    System.out.println("Option 5");
                 }
 
                 //Refer location.
-                Intent allIntents = new Intent(LandingPage.this, CourtPage.class);
-                allIntents.putExtra("idIntent", position);
+                //Intent allIntents = new Intent(LandingPage.this, CourtPage.class);
+                //allIntents.putExtra("idIntent", position);
                 //allIntents.putExtra("intentName1", intent1);
                 //allIntents.putExtra("intentName2", intent2);
-                startActivity(allIntents);
+                //startActivity(allIntents);
             }
         });
 
