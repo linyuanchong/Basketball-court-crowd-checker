@@ -1,10 +1,12 @@
 package com.example.basketballcourtcrowdchecker;
 
+import android.app.ListActivity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Menu;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
@@ -105,13 +107,42 @@ public class LandingPage extends AppCompatActivity implements OnMapReadyCallback
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
 
+
+        //
+        courtListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                //Option 1.
+                if (position==1) {
+                    //Action here.
+                }
+                //Option 2.
+                else if (position==2) {
+                    //Action here.
+                }
+                //Option 3.
+                else if (position==3) {
+                    //Action here.
+                }
+
+                //Refer location.
+                Intent allIntents = new Intent(LandingPage.this, CourtPage.class);
+                allIntents.putExtra("idIntent", position);
+                //allIntents.putExtra("intentName1", intent1);
+                //allIntents.putExtra("intentName2", intent2);
+                startActivity(allIntents);
+            }
+        });
+
+
+        //Navigation drawer listener.
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
 
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
                 int id = menuItem.getItemId();
                 //it's possible to do more actions on several items, if there is a large amount of items I prefer switch(){case} instead of if()
                 if (id==R.id.nav_map){
-                    //Action here.
+                    startActivity(new Intent(getApplicationContext(), LandingPage.class));
                 }
                 else if (id==R.id.nav_account){
                     //Action here.
@@ -134,8 +165,8 @@ public class LandingPage extends AppCompatActivity implements OnMapReadyCallback
                 return true;
             }
         });
-
     }
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
