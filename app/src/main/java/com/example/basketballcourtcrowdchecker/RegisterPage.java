@@ -42,16 +42,16 @@ public class RegisterPage extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register_page);
 
-        registerFullName = findViewById(R.id.registerFullName);
-        registerEmail = findViewById(R.id.registerEmail);
-        registerPassword = findViewById(R.id.registerPassword);
+        registerFullName    = findViewById(R.id.registerFullName);
+        registerEmail       = findViewById(R.id.registerEmail);
+        registerPassword    = findViewById(R.id.registerPassword);
         registerPhoneNumber = findViewById(R.id.registerPhoneNumber);
-        registerButton = findViewById(R.id.registerButton);
-        registerToLogin = findViewById(R.id.registerToLogin);
+        registerButton      = findViewById(R.id.registerButton);
+        registerToLogin     = findViewById(R.id.registerToLogin);
         registerProgressBar = findViewById(R.id.registerProgressBar);
         //Create firebase instance.
-        fAuth           = FirebaseAuth.getInstance();
-        fStore          = FirebaseFirestore.getInstance();
+        fAuth               = FirebaseAuth.getInstance();
+        fStore              = FirebaseFirestore.getInstance();
 
         //If user not exist.
         if(fAuth.getCurrentUser() != null){

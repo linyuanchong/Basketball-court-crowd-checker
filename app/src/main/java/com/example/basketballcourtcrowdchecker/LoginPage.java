@@ -31,13 +31,13 @@ public class LoginPage extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login_page);
 
-        loginToRegister = findViewById(R.id.loginToRegister);
-        loginEmail = findViewById(R.id.loginEmail);
-        loginPassword = findViewById(R.id.loginPassword);
-        loginButton = findViewById(R.id.loginButton);
-        loginProgressBar = findViewById(R.id.loginProgressBar);
+        loginToRegister     = findViewById(R.id.loginToRegister);
+        loginEmail          = findViewById(R.id.loginEmail);
+        loginPassword       = findViewById(R.id.loginPassword);
+        loginButton         = findViewById(R.id.loginButton);
+        loginProgressBar    = findViewById(R.id.loginProgressBar);
         //Create firebase instance.
-        fAuth           = FirebaseAuth.getInstance();
+        fAuth               = FirebaseAuth.getInstance();
 
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
