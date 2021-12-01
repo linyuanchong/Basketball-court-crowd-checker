@@ -169,7 +169,7 @@ public class LandingPage extends AppCompatActivity implements OnMapReadyCallback
                     startActivity(new Intent(getApplicationContext(), FavouritesPage.class));
                 }
                 else if (id==R.id.nav_settings){
-                    //Action here.
+                    startActivity(new Intent(getApplicationContext(), SettingsPage.class));
                 }
                 else if (id==R.id.nav_logout){
                     FirebaseAuth.getInstance().signOut();//logout
