@@ -12,8 +12,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.BasketballCourtCrowdChecker">
-        <activity android:name=".FavouritesActivity"></activity>
-        <activity android:name=".AccountPage"></activity>
+        <activity android:name=".SettingsPage"></activity>
+        <activity android:name=".FavouritesPage" />
+        <activity android:name=".AccountPage" />
         <activity android:name=".RegisterPage">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

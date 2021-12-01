@@ -80,6 +80,19 @@ public class LandingPage extends AppCompatActivity implements OnMapReadyCallback
         //Set support action bar.
         setSupportActionBar(toolbar);
 
+        //Set userID.
+        userID = fAuth.getCurrentUser().getUid();
+
+        // Passing each menu ID as a set of Ids because each
+        // menu should be considered as top level destinations.
+        mAppBarConfiguration = new AppBarConfiguration.Builder(
+                R.id.nav_home, R.id.nav_gallery, R.id.nav_slideshow)
+                .setDrawerLayout(drawer)
+                .build();
+        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
+        NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
+        NavigationUI.setupWithNavController(navigationView, navController);
+
         //Sync ListView.
         String[] locationArray = new String[] {
                 "Court 0",
@@ -95,20 +108,6 @@ public class LandingPage extends AppCompatActivity implements OnMapReadyCallback
 
         //Attach ListView with items from ArrayAdapter.
         courtListView.setAdapter(courtAdapter);
-
-        //Set userID.
-        userID = fAuth.getCurrentUser().getUid();
-
-        // Passing each menu ID as a set of Ids because each
-        // menu should be considered as top level destinations.
-        mAppBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.nav_home, R.id.nav_gallery, R.id.nav_slideshow)
-                .setDrawerLayout(drawer)
-                .build();
-        NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
-        NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
-        NavigationUI.setupWithNavController(navigationView, navController);
-
 
         //When ListView's items are clicked.
         courtListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -167,7 +166,7 @@ public class LandingPage extends AppCompatActivity implements OnMapReadyCallback
                     startActivity(new Intent(getApplicationContext(), AccountPage.class));
                 }
                 else if (id==R.id.nav_favourites){
-                    //Action here.
+                    startActivity(new Intent(getApplicationContext(), FavouritesPage.class));
                 }
                 else if (id==R.id.nav_settings){
                     //Action here.
