@@ -2,7 +2,10 @@ package com.example.basketballcourtcrowdchecker;
 
 import android.accounts.Account;
 import android.app.ListActivity;
+import android.content.Context;
 import android.content.Intent;
+import android.location.Location;
+import android.location.LocationManager;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
@@ -11,12 +14,17 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.Toast;
 
+import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
+import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.navigation.NavigationView;
@@ -41,6 +49,7 @@ import androidx.appcompat.widget.Toolbar;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Scanner;
 
 public class LandingPage extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnMapLoadedCallback, GoogleMap.OnMarkerClickListener{
 
@@ -56,6 +65,9 @@ public class LandingPage extends AppCompatActivity implements OnMapReadyCallback
     ListView courtListView;
     List<String> courtList;
     ArrayAdapter<String> courtAdapter;
+
+    //Store all intents.
+    Intent courtIntents;
 
     //For maps.
     private GoogleMap mapMap;
@@ -76,6 +88,11 @@ public class LandingPage extends AppCompatActivity implements OnMapReadyCallback
         fAuth                           = FirebaseAuth.getInstance();
         fStore                          = FirebaseFirestore.getInstance();
         mf                              = (MapFragment) getFragmentManager().findFragmentById(R.id.mapMap);
+
+        courtIntents = new Intent(LandingPage.this, CourtPage.class);
+
+        //Sync map.
+        mf.getMapAsync(this);
 
         //Set support action bar.
         setSupportActionBar(toolbar);
@@ -185,7 +202,6 @@ public class LandingPage extends AppCompatActivity implements OnMapReadyCallback
         });
     }
 
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -201,17 +217,99 @@ public class LandingPage extends AppCompatActivity implements OnMapReadyCallback
     }
 
     @Override
-    public void onMapLoaded() {
+    public void onMapReady(GoogleMap mapMap) {
+        this.mapMap = mapMap;
 
+        //Set camera location and zoom(currently Dublin).
+        mapMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(53.34433532118153,-6.265035915434364), 10));
+
+        mapMap.getUiSettings().setZoomControlsEnabled(true);
+        //Calls onMapLoaded when layout done.
+        mapMap.setOnMapLoadedCallback(this);
+    }
+
+    @Override
+    public void onMapLoaded() {
+        // code to run when the map has loaded
+        readCourts();
+        mapMap.setOnMarkerClickListener(this);
+
+        // read user's current location, if possible
+        myLocation = getMyLocation();
+        if (myLocation == null) {
+            Toast.makeText(this, "Unable to access your location. Consider enabling Location in your device's Settings.", Toast.LENGTH_LONG).show();
+        } else {
+            mapMap.addMarker(new MarkerOptions()
+                    .position(myLocation)
+                    .title("ME!")
+            );
+        }
+    }
+
+    private LatLng getMyLocation() {
+        // try to get location three ways: GPS, cell/wifi network, and 'passive' mode
+        LocationManager locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
+        /*if (ActivityCompat.checkSelfPermission(this, Manifest.permissio) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }*/
+        Location loc = null;
+        try {
+            loc = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            if (loc == null) {
+                // fall back to network if GPS is not available
+                loc = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+            }
+            if (loc == null) {
+                // fall back to "passive" location if GPS and network are not available
+                loc = locationManager.getLastKnownLocation(LocationManager.PASSIVE_PROVIDER);
+            }
+        }
+        catch (SecurityException ex)
+        {
+
+        }
+
+        if (loc == null) {
+            return null;   // could not get user's location
+        } else {
+            double myLat = loc.getLatitude();
+            double myLng = loc.getLongitude();
+            return new LatLng(myLat, myLng);
+        }
     }
 
     @Override
     public boolean onMarkerClick(Marker marker) {
-        return false;
+        if (myLocation != null) {
+            LatLng markerLatLng = marker.getPosition();
+            mapMap.addPolyline(new PolylineOptions()
+                    .add(myLocation)
+                    .add(markerLatLng)
+            );
+            return true;
+        } else {
+
+            //Save location title intent.
+            courtIntents.putExtra("courtTitleIntent", marker.getTitle());
+            courtIntents.putExtra("courtLatIntent", marker.getPosition().latitude);
+            courtIntents.putExtra("courtLongIntent", marker.getPosition().longitude);
+            startActivity(courtIntents);
+            return false;
+        }
     }
 
-    @Override
-    public void onMapReady(GoogleMap googleMap) {
-
+    //This function is to read all courts.
+    private void readCourts() {
+        Scanner scan = new Scanner(getResources().openRawResource(R.raw.courts));
+        while (scan.hasNextLine()) {
+            String name = scan.nextLine();
+            if (name.isEmpty()) break;
+            double lat = Double.parseDouble(scan.nextLine());
+            double lng = Double.parseDouble(scan.nextLine());
+            mapMap.addMarker(new MarkerOptions()
+                    .position(new LatLng(lat, lng))
+                    .title(name)
+            );
+        }
     }
 }

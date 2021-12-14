@@ -18,7 +18,12 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 
@@ -33,8 +38,15 @@ public class RegisterPage extends AppCompatActivity {
     Button registerButton;
     TextView registerToLogin;
     ProgressBar registerProgressBar;
+
+    //Firebase credentials.
     FirebaseAuth fAuth;
-    FirebaseFirestore fStore;
+    FirebaseDatabase firebaseDatabase;
+    DatabaseReference databaseReference;
+    FirebaseUser currentUser;
+
+    //User credentials.
+    User newUser;
     String userID;
 
     @Override
@@ -49,9 +61,11 @@ public class RegisterPage extends AppCompatActivity {
         registerButton      = findViewById(R.id.registerButton);
         registerToLogin     = findViewById(R.id.registerToLogin);
         registerProgressBar = findViewById(R.id.registerProgressBar);
+
         //Create firebase instance.
         fAuth               = FirebaseAuth.getInstance();
-        fStore              = FirebaseFirestore.getInstance();
+        firebaseDatabase    = FirebaseDatabase.getInstance("https://basketball-court-crowd-checker-default-rtdb.firebaseio.com/");
+
 
         //If user not exist.
         if(fAuth.getCurrentUser() != null){
@@ -67,7 +81,7 @@ public class RegisterPage extends AppCompatActivity {
                 final String email              = registerEmail.getText().toString().trim();
                 String password                 = registerPassword.getText().toString().trim();
                 final String fullName           = registerFullName.getText().toString();
-                final String phoneNumber              = registerPhoneNumber.getText().toString();
+                final String phoneNumber        = registerPhoneNumber.getText().toString();
                 final FirebaseDatabase database = FirebaseDatabase.getInstance();
 
                 //Error detections.
@@ -94,29 +108,11 @@ public class RegisterPage extends AppCompatActivity {
                         if(task.isSuccessful()){
                             Toast.makeText(RegisterPage.this, "User Created successfully.", Toast.LENGTH_SHORT).show();
 
-                            //Set userID.
-                            userID = fAuth.getCurrentUser().getUid();
-                            //Get "users" reference.
-                            DocumentReference documentReference = fStore.collection("users").document(userID);
-                            //Create and store data using hashmap.
-                            Map<String, Object> user = new HashMap<>();
-                            //Store values into user hashmap.
-                            user.put("user_email", email);
-                            user.put("user_password", password);
-                            user.put("user_full_name", fullName);
-                            user.put("user_phone_number", phoneNumber);
+                            //Get user credentials.
+                            currentUser         = fAuth.getCurrentUser();
+                            databaseReference   = firebaseDatabase.getReference(currentUser.getUid());
 
-                            //Additional documents:
-                            //user.put("workout_list_monday", "");
-                            //user.put("workout_list_tuesday", "");
-                            //user.put("workout_list_wednesday", "");
-
-                            documentReference.set(user).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                @Override
-                                public void onSuccess(Void aVoid) {
-                                    System.out.println("successfully created new user" + userID);
-                                }
-                            });
+                            addDataToFirebase(email, password, fullName, phoneNumber);
 
                             startActivity(new Intent(getApplicationContext(), LandingPage.class));
                         }
@@ -135,5 +131,32 @@ public class RegisterPage extends AppCompatActivity {
                 startActivity(new Intent(getApplicationContext(), LoginPage.class));
             }
         });
+    }
+
+    private void addDataToFirebase (String thisEmail, String thisPassword, String thisName, String thisPhone) {
+
+        //Create user object.
+        newUser = new User();
+
+        //Set.
+        newUser.setEmail(thisEmail);
+        newUser.setPassword(thisPassword);
+        newUser.setName(thisName);
+        newUser.setPhone(thisPhone);
+
+        //Add into database.
+        databaseReference.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                databaseReference.setValue(newUser);
+                Toast.makeText(RegisterPage.this, "Successfully added data.", Toast.LENGTH_SHORT).show();
+            }
+            //If cancelled/failed.
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Toast.makeText(RegisterPage.this, "Fail to add data." + error, Toast.LENGTH_SHORT).show();
+            }
+        });
+
     }
 }
