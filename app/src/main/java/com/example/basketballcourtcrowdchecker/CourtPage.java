@@ -30,11 +30,9 @@ public class CourtPage extends AppCompatActivity implements OnMapReadyCallback, 
 
     FirebaseAuth fAuth;
     FirebaseFirestore fStore;
-    String userID;
 
     private GoogleMap courtMap;
     private LatLng myLocation;
-    double latitude, longitude;
     MapFragment mf;
 
     //Intents storage.

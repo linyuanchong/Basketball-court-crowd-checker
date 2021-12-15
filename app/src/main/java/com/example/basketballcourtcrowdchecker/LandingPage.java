@@ -132,7 +132,6 @@ public class LandingPage extends AppCompatActivity implements OnMapReadyCallback
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 //Option 0.
                 if (position==0) {
-                    startActivity(new Intent(getApplicationContext(), CourtPage.class));
                     System.out.println("Option 0");
                 }
                 //Option 1.
