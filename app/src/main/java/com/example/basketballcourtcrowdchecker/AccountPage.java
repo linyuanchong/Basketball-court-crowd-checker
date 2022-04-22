@@ -50,6 +50,8 @@ public class AccountPage extends AppCompatActivity {
         userName = currentUser.getUid();
         userEmail = currentUser.getEmail();
 
+
+
         accountUsername.setText(userName);
         accountEmail.setText(userEmail);
     }

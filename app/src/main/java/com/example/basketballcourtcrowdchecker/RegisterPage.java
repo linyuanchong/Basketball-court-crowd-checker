@@ -49,6 +49,8 @@ public class RegisterPage extends AppCompatActivity {
     User newUser;
     String userID;
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -95,6 +97,10 @@ public class RegisterPage extends AppCompatActivity {
                 }
                 if(password.length() < 6){
                     registerPassword.setError("Require password to be more than 6 characters.");
+                    return;
+                }
+                if (checkString(password) == false) {
+                    registerPassword.setError("Password needs to have at least 1 uppercase, 1 lowercase and 1 digit.");
                     return;
                 }
 
@@ -157,6 +163,36 @@ public class RegisterPage extends AppCompatActivity {
                 Toast.makeText(RegisterPage.this, "Fail to add data." + error, Toast.LENGTH_SHORT).show();
             }
         });
+
+    }
+
+    //Check if password is valid.
+    private static boolean checkString(String str) {
+
+        char ch;
+        boolean capitalFlag = false;
+        boolean lowerCaseFlag = false;
+        boolean numberFlag = false;
+
+        for (int i=0;i < str.length();i++) {
+
+            ch = str.charAt(i);
+
+            if (Character.isDigit(ch)) {
+                numberFlag = true;
+            } else if (Character.isUpperCase(ch)) {
+                capitalFlag = true;
+            } else if (Character.isLowerCase(ch)) {
+                lowerCaseFlag = true;
+            }
+        }
+
+        if (numberFlag && capitalFlag && lowerCaseFlag) {
+            return true;
+        }
+        else {
+            return false;
+        }
 
     }
 }

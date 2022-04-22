@@ -6,6 +6,7 @@ public class User {
     private String password;
     private String name;
     private String phone;
+    private boolean presence;
 
     public User() {
 
@@ -41,5 +42,13 @@ public class User {
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    public boolean getPresence() {
+        return presence;
+    }
+
+    public void setPresence(boolean presence) {
+        this.presence = presence;
     }
 }

@@ -1,11 +1,13 @@
 package com.example.basketballcourtcrowdchecker;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -20,13 +22,17 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
 
 public class CourtPage extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnMapLoadedCallback, GoogleMap.OnMarkerClickListener{
 
     ImageView courtIcon;
-    Button addRatingButton, crowdButton, checkinButton;
-    TextView courtName;
+    Button addRatingButton, checkinButton;
+    TextView courtName, crowdNum, courtRating;
 
     FirebaseAuth fAuth;
     FirebaseFirestore fStore;
@@ -36,7 +42,7 @@ public class CourtPage extends AppCompatActivity implements OnMapReadyCallback, 
     MapFragment mf;
 
     //Intents storage.
-    String courtTitle;
+    String courtId, courtTitle;
     double courtLat, courtLong;
 
     @Override
@@ -46,15 +52,17 @@ public class CourtPage extends AppCompatActivity implements OnMapReadyCallback, 
 
         courtIcon       = (ImageView) findViewById(R.id.courtIcon);
         addRatingButton = (Button) findViewById(R.id.addRatingButton);
-        crowdButton     = (Button) findViewById(R.id.crowdButton);
         checkinButton   = (Button) findViewById(R.id.checkinButton);
         courtName       = (TextView) findViewById(R.id.courtName);
+        crowdNum       = (TextView) findViewById(R.id.crowdNum);
+        courtRating       = (TextView) findViewById(R.id.courtRating);
 
         fAuth           = FirebaseAuth.getInstance();
         fStore          = FirebaseFirestore.getInstance();
         mf              = (MapFragment) getFragmentManager().findFragmentById(R.id.courtMap);
 
         Bundle extras = getIntent().getExtras();
+        courtId = extras.getString("courtIdIntent");
         courtTitle = extras.getString("courtTitleIntent");
         courtLat = extras.getDouble("courtLatIntent");
         courtLong = extras.getDouble("courtLongIntent");
@@ -63,6 +71,19 @@ public class CourtPage extends AppCompatActivity implements OnMapReadyCallback, 
 
         //Sync map.
         mf.getMapAsync(this);
+
+        DocumentReference documentReference = fStore.collection("courts").document(courtId);
+
+        documentReference.addSnapshotListener(this, new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException error) {
+                courtName.setText(documentSnapshot.getString("name"));
+                crowdNum.setText("Crowd: " + documentSnapshot.getLong("crowd").toString());
+                courtRating.setText("Rating: " + documentSnapshot.getDouble("rating").toString() + "(" + documentSnapshot.getLong("rated").toString() + ")");
+            }
+        });
+
+
     }
 
     @Override
@@ -123,5 +144,7 @@ public class CourtPage extends AppCompatActivity implements OnMapReadyCallback, 
             double myLng = loc.getLongitude();
             return new LatLng(myLat, myLng);
         }
+
+
     }
 }
