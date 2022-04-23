@@ -39,6 +39,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.GeoPoint;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -239,7 +240,7 @@ public class LandingPage extends AppCompatActivity implements OnMapReadyCallback
     @Override
     public void onMapLoaded() {
         // code to run when the map has loaded
-        readCourts();
+        newReadCourts();
         mapMap.setOnMarkerClickListener(this);
 
         // read user's current location, if possible
@@ -321,4 +322,35 @@ public class LandingPage extends AppCompatActivity implements OnMapReadyCallback
             );
         }
     }
+
+    //This function is to read all courts.
+    private void newReadCourts() {
+
+        for (int i = 0; i < 7; i++) {
+
+            DocumentReference documentReference = fStore.collection("courts").document("m" + Integer.toString(i));
+            System.out.println(documentReference);
+
+            documentReference.addSnapshotListener(this, new EventListener<DocumentSnapshot>() {
+                @Override
+                public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException error) {
+
+                    GeoPoint geoPoint = documentSnapshot.getGeoPoint("location");
+                    String name = documentSnapshot.getString("name");
+
+                    double lat = geoPoint.getLatitude();
+                    double lng = geoPoint.getLongitude();
+                    LatLng latLng = new LatLng(lat, lng);
+
+                    mapMap.addMarker(new MarkerOptions()
+                            .position(new LatLng(lat, lng))
+                            .title(name)
+                    );
+                }
+            });
+        }
+
+    }
+
+
 }
