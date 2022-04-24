@@ -8,6 +8,7 @@ import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -83,7 +84,11 @@ public class CourtPage extends AppCompatActivity implements OnMapReadyCallback, 
             }
         });
 
+        checkinButton.setOnClickListener(new View.OnClickListener(){
+            public void onClick(View v){
 
+            }
+        });
     }
 
     @Override

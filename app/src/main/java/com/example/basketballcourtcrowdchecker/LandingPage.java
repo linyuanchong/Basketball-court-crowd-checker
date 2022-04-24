@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Menu;
@@ -25,6 +26,8 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.navigation.NavigationView;
@@ -40,6 +43,7 @@ import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.FirebaseFirestoreException;
 import com.google.firebase.firestore.GeoPoint;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -52,10 +56,13 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
+
+import static android.content.ContentValues.TAG;
 
 public class LandingPage extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnMapLoadedCallback, GoogleMap.OnMarkerClickListener{
 
@@ -240,7 +247,7 @@ public class LandingPage extends AppCompatActivity implements OnMapReadyCallback
     @Override
     public void onMapLoaded() {
         // code to run when the map has loaded
-        newReadCourts();
+        readCourts();
         mapMap.setOnMarkerClickListener(this);
 
         // read user's current location, if possible
@@ -308,25 +315,34 @@ public class LandingPage extends AppCompatActivity implements OnMapReadyCallback
         }
     }
 
-    //This function is to read all courts.
+    //1st of two functions to read all courts.
     private void readCourts() {
-        Scanner scan = new Scanner(getResources().openRawResource(R.raw.courts));
-        while (scan.hasNextLine()) {
-            String name = scan.nextLine();
-            if (name.isEmpty()) break;
-            double lat = Double.parseDouble(scan.nextLine());
-            double lng = Double.parseDouble(scan.nextLine());
-            mapMap.addMarker(new MarkerOptions()
-                    .position(new LatLng(lat, lng))
-                    .title(name)
-            );
-        }
+
+        final int[] length = {0};
+
+        fStore.collection("courts")
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            int count = 0;
+                            for (DocumentSnapshot document : task.getResult()) {
+                                count++;
+                            }
+                            length[0] = count;
+                            System.out.println("--------------------------" + length[0]);
+                            getCourts(length[0]);
+                        } else {
+                            Log.d(TAG, "Error getting documents: ", task.getException());
+                        }
+                    }
+                });
     }
+    //2nd of two functions to read all courts.
+    private void getCourts(int length) {
 
-    //This function is to read all courts.
-    private void newReadCourts() {
-
-        for (int i = 0; i < 7; i++) {
+        for (int i = 0; i < length; i++) {
 
             DocumentReference documentReference = fStore.collection("courts").document("m" + Integer.toString(i));
             System.out.println(documentReference);
@@ -351,6 +367,5 @@ public class LandingPage extends AppCompatActivity implements OnMapReadyCallback
         }
 
     }
-
 
 }
