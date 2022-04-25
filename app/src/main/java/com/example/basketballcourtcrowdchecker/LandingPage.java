@@ -74,10 +74,6 @@ public class LandingPage extends AppCompatActivity implements OnMapReadyCallback
     FirebaseFirestore fStore;
     String userID;
 
-    //For ListView.
-    ListView courtListView;
-    List<String> courtList;
-    ArrayAdapter<String> courtAdapter;
 
     //Store all intents.
     Intent courtIntents;
@@ -98,7 +94,6 @@ public class LandingPage extends AppCompatActivity implements OnMapReadyCallback
         toolbar                         = findViewById(R.id.toolbar);
         DrawerLayout drawer             = findViewById(R.id.drawer_layout);
         NavigationView navigationView   = findViewById(R.id.nav_view);
-        courtListView                   = findViewById(R.id.courtListView);
         //Create firebase instance.
         fAuth                           = FirebaseAuth.getInstance();
         fStore                          = FirebaseFirestore.getInstance();
@@ -125,66 +120,6 @@ public class LandingPage extends AppCompatActivity implements OnMapReadyCallback
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment);
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
-
-
-        //Sync ListView.
-        String[] locationArray = new String[] {
-                "Court 0",
-                "Court 1",
-                "Court 2",
-                "Court 3",
-                "Court 4",
-                "Court 5",};
-        //Create an empty list from String Array elements.
-        courtList = new ArrayList<String>(Arrays.asList(locationArray));
-        //Create an ArrayAdapter from List.
-        courtAdapter = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, courtList);
-
-        //Attach ListView with items from ArrayAdapter.
-        courtListView.setAdapter(courtAdapter);
-
-        //When ListView's items are clicked.
-        courtListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                //Option 0.
-                if (position==0) {
-                    System.out.println("Option 0");
-                }
-                //Option 1.
-                else if (position==1) {
-                    System.out.println("Option 1");
-                }
-                //Option 2.
-                else if (position==2) {
-                    //Action here.
-                    System.out.println("Option 2");
-                }
-                //Option 3.
-                else if (position==3) {
-                    //Action here.
-                    System.out.println("Option 3");
-                }
-                //Option 4.
-                else if (position==4) {
-                    //Action here.
-                    System.out.println("Option 4");
-                }
-                //Option 5.
-                else if (position==5) {
-                    //Action here.
-                    System.out.println("Option 5");
-                }
-
-                //Refer location.
-                //Intent allIntents = new Intent(LandingPage.this, CourtPage.class);
-                //allIntents.putExtra("idIntent", position);
-                //allIntents.putExtra("intentName1", intent1);
-                //allIntents.putExtra("intentName2", intent2);
-                //startActivity(allIntents);
-            }
-        });
-
 
         //Navigation drawer listener.
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
@@ -331,7 +266,6 @@ public class LandingPage extends AppCompatActivity implements OnMapReadyCallback
                                 count++;
                             }
                             length[0] = count;
-                            System.out.println("--------------------------" + length[0]);
                             getCourts(length[0]);
                         } else {
                             Log.d(TAG, "Error getting documents: ", task.getException());

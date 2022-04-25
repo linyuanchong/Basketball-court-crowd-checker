@@ -6,6 +6,7 @@ public class User {
     private String password;
     private String name;
     private String phone;
+    private String currentCourt;
     private boolean presence;
 
     public User() {
@@ -42,6 +43,14 @@ public class User {
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    public String getCurrentCourt() {
+        return currentCourt;
+    }
+
+    public void setCurrentCourt(String currentCourt) {
+        this.currentCourt = currentCourt;
     }
 
     public boolean getPresence() {

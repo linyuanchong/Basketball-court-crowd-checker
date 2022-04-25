@@ -34,15 +34,20 @@
         app:layout_constraintVertical_bias="0.0"
         map:cameraZoom="10"/>
 
-
-    <ListView
-        android:id="@+id/courtListView"
-        android:layout_width="350dp"
-        android:layout_height="150dp"
-        android:layout_marginTop="20dp"
-        app:layout_constraintBottom_toBottomOf="@+id/nav_host_fragment"
+    <TextView
+        android:id="@+id/currentCourt"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="140dp"
+        android:fontFamily="@font/aldrich"
+        android:gravity="center"
+        android:text="currentCourt"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/mapMap"
-        app:layout_constraintVertical_bias="0.0" />
+        app:layout_constraintVertical_bias="0.563" />
+
+
 </androidx.constraintlayout.widget.ConstraintLayout>
