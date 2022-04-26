@@ -13,7 +13,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.BasketballCourtCrowdChecker">
         <activity android:name=".SettingsPage"></activity>
-        <activity android:name=".CurrentPage" />
+        <activity android:name=".ManagePage" />
         <activity android:name=".AccountPage" />
         <activity android:name=".RegisterPage">
             <intent-filter>

@@ -122,11 +122,11 @@ public class LandingPage extends AppCompatActivity implements OnMapReadyCallback
                     currCourtId = String.valueOf(task.getResult().getValue());
 
                     if (currCourtId.equals("none")) {
-                        currentCourt.setText("Select a court to check in.");
+                        currentCourt.setText("You are currently not checked in into any courts. Select a court to check in.");
                     }
                     else {
                         Log.d("firebase", String.valueOf(task.getResult().getValue()));
-                        storeCurrCourtId(currCourtId);
+                        displayCurrCourt(currCourtId);
                     }
                 }
             }
@@ -165,8 +165,8 @@ public class LandingPage extends AppCompatActivity implements OnMapReadyCallback
                 else if (id==R.id.nav_account){
                     startActivity(new Intent(getApplicationContext(), AccountPage.class));
                 }
-                else if (id==R.id.nav_favourites){
-                    startActivity(new Intent(getApplicationContext(), CurrentPage.class));
+                else if (id==R.id.nav_manage){
+                    startActivity(new Intent(getApplicationContext(), ManagePage.class));
                 }
                 else if (id==R.id.nav_settings){
                     startActivity(new Intent(getApplicationContext(), SettingsPage.class));
@@ -335,14 +335,15 @@ public class LandingPage extends AppCompatActivity implements OnMapReadyCallback
 
     }
 
-    public void storeCurrCourtId (String currCourtId) {
+    //Function to display current court.
+    public void displayCurrCourt(String currCourtId) {
 
         courtDocRef = fStore.collection("courts").document(currCourtId);
 
         courtDocRef.addSnapshotListener(this, new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException error) {
-                currentCourt.setText(documentSnapshot.getString("name"));
+                currentCourt.setText("You are currently checked in into: " + documentSnapshot.getString("name") + ". Go to the current court menu to check in or check out.");
             }
         });
     }

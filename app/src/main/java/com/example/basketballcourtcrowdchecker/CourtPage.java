@@ -3,6 +3,8 @@ package com.example.basketballcourtcrowdchecker;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.content.ContextCompat;
 
 import android.content.Context;
 import android.location.Location;
@@ -42,6 +44,7 @@ import com.google.firestore.v1.WriteResult;
 
 public class CourtPage extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnMapLoadedCallback, GoogleMap.OnMarkerClickListener{
 
+    ConstraintLayout cl;
     ImageView courtIcon;
     Button addRatingButton, checkinButton;
     TextView courtName, crowdNum, courtRating;
@@ -62,6 +65,7 @@ public class CourtPage extends AppCompatActivity implements OnMapReadyCallback, 
 
     //User personal data.
     String userId;
+    String currCourtId;
     boolean presence;
 
     //Intents storage.
@@ -83,6 +87,7 @@ public class CourtPage extends AppCompatActivity implements OnMapReadyCallback, 
         courtName       = (TextView) findViewById(R.id.courtName);
         crowdNum        = (TextView) findViewById(R.id.crowdNum);
         courtRating     = (TextView) findViewById(R.id.courtRating);
+        cl              = findViewById(R.id.cl);
 
         //Retrieve intents.
         Bundle extras = getIntent().getExtras();
@@ -131,14 +136,40 @@ public class CourtPage extends AppCompatActivity implements OnMapReadyCallback, 
                 }
                 else {
                     presence = (Boolean) task.getResult().getValue();
-                    //If checked in already.
-                    if (presence == true ) {
-                        checkinButton.setText("CHECK OUT");
-                    }
-                    //If checked out already.
-                    else if (presence == false) {
-                        checkinButton.setText("CHECK IN");
-                    }
+
+                    //Read once.
+                    currCourtReference.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<DataSnapshot> task) {
+                            if (!task.isSuccessful()) {
+                                Log.e("firebase", "Error getting data", task.getException());
+                            }
+                            else {
+                                currCourtId = String.valueOf(task.getResult().getValue());
+
+                                //If checked in.
+                                if (presence == true ) {
+                                    //Check out button when user is on the court's page of their current court.
+                                    if (currCourtId.equals(courtId)) {
+                                        checkinButton.setVisibility(View.VISIBLE);
+                                        checkinButton.setText("CHECK OUT");
+                                        cl.setBackgroundResource(R.drawable.greenbg);
+                                    }
+                                    //Hide button when user is not on the court's page of their current court.
+                                    else if (!currCourtId.equals(courtId)) {
+                                        checkinButton.setVisibility(View.GONE);
+                                        cl.setBackgroundResource(R.drawable.redbg);
+                                    }
+                                }
+                                //Check in button when user is not checked in at all.
+                                else if (presence == false) {
+                                    checkinButton.setVisibility(View.VISIBLE);
+                                    checkinButton.setText("CHECK IN");
+                                    cl.setBackgroundResource(R.drawable.greybg);
+                                }
+                            }
+                        }
+                    });
                     Log.d("firebase", String.valueOf(task.getResult().getValue()));
                 }
             }
