@@ -1,7 +1,5 @@
 package com.example.basketballcourtcrowdchecker;
 
-import android.accounts.Account;
-import android.app.ListActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
@@ -9,12 +7,8 @@ import android.location.LocationManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
-import android.view.View;
 import android.view.Menu;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -22,21 +16,18 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.EventListener;
@@ -56,12 +47,6 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Scanner;
-
 import static android.content.ContentValues.TAG;
 
 public class LandingPage extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnMapLoadedCallback, GoogleMap.OnMarkerClickListener{
@@ -72,11 +57,26 @@ public class LandingPage extends AppCompatActivity implements OnMapReadyCallback
     Toolbar toolbar;
     FirebaseAuth fAuth;
     FirebaseFirestore fStore;
+    FirebaseDatabase firebaseDatabase;
+    DatabaseReference databaseReference;
     String userID;
+    FirebaseUser currentUser;
 
+    DatabaseReference presenceReference;
+    DatabaseReference currCourtReference;
+    DocumentReference courtDocRef;
+    CollectionReference crowdColRef;
+
+    //Strings.
+    String userId;
+    String currCourtId;
+    String thisCurrCourtId;
 
     //Store all intents.
     Intent courtIntents;
+
+    //Components.
+    TextView currentCourt;
 
     //For maps.
     private GoogleMap mapMap;
@@ -94,15 +94,47 @@ public class LandingPage extends AppCompatActivity implements OnMapReadyCallback
         toolbar                         = findViewById(R.id.toolbar);
         DrawerLayout drawer             = findViewById(R.id.drawer_layout);
         NavigationView navigationView   = findViewById(R.id.nav_view);
+        currentCourt                    = (TextView) findViewById(R.id.currentCourt);
+
+
         //Create firebase instance.
         fAuth                           = FirebaseAuth.getInstance();
         fStore                          = FirebaseFirestore.getInstance();
+        firebaseDatabase                = FirebaseDatabase.getInstance("https://basketball-court-crowd-checker-default-rtdb.firebaseio.com/");
+        databaseReference               = firebaseDatabase.getReference();
+
+        //User stuff.
+        currentUser                     = fAuth.getCurrentUser();
+        userId                          = currentUser.getUid();
+        presenceReference               = databaseReference.child(userId).child("presence");
+        currCourtReference              = databaseReference.child(userId).child("currentCourt");
+
         mf                              = (MapFragment) getFragmentManager().findFragmentById(R.id.mapMap);
+
+        //Read once.
+        currCourtReference.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DataSnapshot> task) {
+                if (!task.isSuccessful()) {
+                    Log.e("firebase", "Error getting data", task.getException());
+                }
+                else {
+                    currCourtId = String.valueOf(task.getResult().getValue());
+
+                    if (currCourtId.equals("none")) {
+                        currentCourt.setText("Select a court to check in.");
+                    }
+                    else {
+                        Log.d("firebase", String.valueOf(task.getResult().getValue()));
+                        storeCurrCourtId(currCourtId);
+                    }
+                }
+            }
+        });
 
         courtIntents = new Intent(LandingPage.this, CourtPage.class);
 
-
-            //Sync map.
+        //Sync map.
         mf.getMapAsync(this);
 
         //Set support action bar.
@@ -134,7 +166,7 @@ public class LandingPage extends AppCompatActivity implements OnMapReadyCallback
                     startActivity(new Intent(getApplicationContext(), AccountPage.class));
                 }
                 else if (id==R.id.nav_favourites){
-                    startActivity(new Intent(getApplicationContext(), FavouritesPage.class));
+                    startActivity(new Intent(getApplicationContext(), CurrentPage.class));
                 }
                 else if (id==R.id.nav_settings){
                     startActivity(new Intent(getApplicationContext(), SettingsPage.class));
@@ -273,6 +305,7 @@ public class LandingPage extends AppCompatActivity implements OnMapReadyCallback
                     }
                 });
     }
+
     //2nd of two functions to read all courts.
     private void getCourts(int length) {
 
@@ -300,6 +333,18 @@ public class LandingPage extends AppCompatActivity implements OnMapReadyCallback
             });
         }
 
+    }
+
+    public void storeCurrCourtId (String currCourtId) {
+
+        courtDocRef = fStore.collection("courts").document(currCourtId);
+
+        courtDocRef.addSnapshotListener(this, new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException error) {
+                currentCourt.setText(documentSnapshot.getString("name"));
+            }
+        });
     }
 
 }

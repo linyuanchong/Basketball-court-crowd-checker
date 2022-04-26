@@ -132,7 +132,7 @@ public class CourtPage extends AppCompatActivity implements OnMapReadyCallback, 
                 else {
                     presence = (Boolean) task.getResult().getValue();
                     //If checked in already.
-                    if (presence == true) {
+                    if (presence == true ) {
                         checkinButton.setText("CHECK OUT");
                     }
                     //If checked out already.
@@ -164,7 +164,7 @@ public class CourtPage extends AppCompatActivity implements OnMapReadyCallback, 
                                         .show();
                                 //Set user presence to false.
                                 presenceReference.setValue(false);
-                                currCourtReference.setValue("");
+                                currCourtReference.setValue("none");
                                 presence = (Boolean)task.getResult().getValue();
                                 checkInOrOut();
                             }

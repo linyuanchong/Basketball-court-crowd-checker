@@ -84,7 +84,7 @@ public class RegisterPage extends AppCompatActivity {
                 String password                 = registerPassword.getText().toString().trim();
                 final String fullName           = registerFullName.getText().toString();
                 final String phoneNumber        = registerPhoneNumber.getText().toString();
-                final String currentCourt       = "";
+                final String currentCourt       = "none";
                 final boolean presence          = false;
                 final FirebaseDatabase database = FirebaseDatabase.getInstance();
 
