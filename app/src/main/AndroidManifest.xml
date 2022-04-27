@@ -12,7 +12,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.BasketballCourtCrowdChecker">
-        <activity android:name=".SettingsPage"></activity>
+        <activity android:name=".AboutPage"></activity>
         <activity android:name=".ManagePage" />
         <activity android:name=".AccountPage" />
         <activity android:name=".RegisterPage">

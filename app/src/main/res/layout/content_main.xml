@@ -26,7 +26,11 @@
         android:name="com.google.android.gms.maps.MapFragment"
         android:layout_width="350dp"
         android:layout_height="350dp"
+        android:layout_marginStart="30dp"
+        android:layout_marginLeft="30dp"
         android:layout_marginTop="30dp"
+        android:layout_marginEnd="30dp"
+        android:layout_marginRight="30dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -37,13 +41,17 @@
     <TextView
         android:id="@+id/currentCourt"
         android:layout_width="350dp"
-        android:layout_height="50dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="30dp"
+        android:layout_marginLeft="30dp"
         android:layout_marginTop="20dp"
+        android:layout_marginEnd="30dp"
+        android:layout_marginRight="30dp"
         android:layout_marginBottom="140dp"
         android:background="#77000000"
         android:fontFamily="sans-serif-condensed-light"
         android:gravity="center"
-        android:text='Select a court to check in or press "MANAGE" to manage your current court.'
+        android:text="Please select a court."
         android:textColor="#FFFFFF"
         android:textSize="20sp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -53,22 +61,46 @@
         app:layout_constraintVertical_bias="0.0" />
 
     <Button
-        android:id="@+id/manageButton"
+        android:id="@+id/enterButton"
         android:layout_width="350dp"
-        android:layout_height="40dp"
-        android:layout_marginTop="20dp"
+        android:layout_height="80dp"
+        android:layout_marginStart="30dp"
+        android:layout_marginLeft="30dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="30dp"
+        android:layout_marginRight="30dp"
         android:fontFamily="sans-serif-condensed-light"
-        android:text="Manage"
+
+        android:text="Enter Court"
         android:textAllCaps="true"
         android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        android:textSize="15sp"
         app:backgroundTint="@color/cardview_dark_background"
-
         app:layout_constraintBottom_toBottomOf="@+id/nav_host_fragment"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.508"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/currentCourt"
         map:layout_constraintVertical_bias="0.0" />
+
+    <Button
+        android:id="@+id/refreshButton"
+        android:layout_width="80dp"
+        android:layout_height="50dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginRight="20dp"
+        android:layout_marginBottom="10dp"
+        android:fontFamily="sans-serif-condensed-medium"
+        android:text="Reload"
+        android:textColor="#000000"
+        android:textSize="12sp"
+        app:backgroundTint="@color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/nav_host_fragment"
+        app:layout_constraintVertical_bias="1.0" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

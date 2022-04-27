@@ -7,6 +7,7 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.ContextCompat;
 
 import android.content.Context;
+import android.content.Intent;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
@@ -47,7 +48,7 @@ public class CourtPage extends AppCompatActivity implements OnMapReadyCallback, 
 
     ConstraintLayout cl;
     ImageView courtIcon;
-    Button addRatingButton, checkinButton;
+    Button addRatingButton, checkinButton, homeButton1;
     TextView courtName, crowdNum, courtRating;
 
     FirebaseAuth fAuth;
@@ -96,6 +97,7 @@ public class CourtPage extends AppCompatActivity implements OnMapReadyCallback, 
         circleDisplay   = (ImageView) findViewById(R.id.circleDisplay);
         addRatingButton = (Button) findViewById(R.id.addRatingButton);
         checkinButton   = (Button) findViewById(R.id.checkinButton);
+        homeButton1     = (Button) findViewById(R.id.homeButton1);
         courtName       = (TextView) findViewById(R.id.courtName);
         crowdNum        = (TextView) findViewById(R.id.crowdNum);
         courtRating     = (TextView) findViewById(R.id.courtRating);
@@ -135,6 +137,12 @@ public class CourtPage extends AppCompatActivity implements OnMapReadyCallback, 
 
         //Sync map.
         mf.getMapAsync(this);
+
+        homeButton1.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                startActivity(new Intent(getApplicationContext(), LandingPage.class));
+            }
+        });
 
         courtDocRef.addSnapshotListener(this, new EventListener<DocumentSnapshot>() {
             @Override

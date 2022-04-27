@@ -173,7 +173,7 @@ public class RegisterPage extends AppCompatActivity {
     }
 
     //Check if password is valid.
-    private static boolean checkString(String str) {
+    public static boolean checkString(String str) {
 
         char ch;
         boolean capitalFlag = false;

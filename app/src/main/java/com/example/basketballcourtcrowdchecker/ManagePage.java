@@ -5,6 +5,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.constraintlayout.widget.ConstraintLayout;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -37,7 +38,7 @@ public class ManagePage extends AppCompatActivity {
 
     ConstraintLayout cl;
     ImageView courtIcon;
-    Button addRatingButton, checkinButton;
+    Button addRatingButton, checkinButton, homeButton2;
     TextView currentCourt2, crowdDisplay, courtRating;
     ImageView checkinDisplay;
     Switch checkSwitch;
@@ -74,6 +75,7 @@ public class ManagePage extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_manage_page);
 
+        homeButton2         = (Button) findViewById(R.id.homeButton2);
         checkSwitch         = (Switch) findViewById(R.id.checkSwitch);
         currentCourt2       = (TextView) findViewById(R.id.currentCourt2);
         checkinDisplay      = (ImageView) findViewById(R.id.checkinDisplay);
@@ -88,6 +90,11 @@ public class ManagePage extends AppCompatActivity {
         presenceReference   = databaseRef.child(userId).child("presence");
         currCourtReference  = databaseRef.child(userId).child("currentCourt");
 
+        homeButton2.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                startActivity(new Intent(getApplicationContext(), LandingPage.class));
+            }
+        });
 
         //Read once.
         currCourtReference.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {

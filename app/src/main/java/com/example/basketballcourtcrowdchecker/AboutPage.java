@@ -4,7 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.os.Bundle;
 
-public class SettingsPage extends AppCompatActivity {
+public class AboutPage extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

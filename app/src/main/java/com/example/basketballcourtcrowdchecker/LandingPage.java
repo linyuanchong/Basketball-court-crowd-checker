@@ -1,7 +1,9 @@
 package com.example.basketballcourtcrowdchecker;
 
+import android.Manifest;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Bundle;
@@ -17,17 +19,12 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.navigation.NavigationView;
-import com.google.android.material.snackbar.Snackbar;
-import com.google.firebase.auth.AuthCredential;
-import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -44,6 +41,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
 import androidx.core.view.GravityCompat;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -55,11 +53,13 @@ import androidx.appcompat.widget.Toolbar;
 
 import static android.content.ContentValues.TAG;
 
-public class LandingPage extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnMapLoadedCallback, GoogleMap.OnMarkerClickListener{
+public class LandingPage extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnMapLoadedCallback, GoogleMap.OnMarkerClickListener {
 
     private AppBarConfiguration mAppBarConfiguration;
 
-    Button manageButton;
+    Button enterButton, refreshButton;
+    NavigationView navigationView;
+    DrawerLayout drawer;
 
     //General declarations.
     Toolbar toolbar;
@@ -70,8 +70,8 @@ public class LandingPage extends AppCompatActivity implements OnMapReadyCallback
     String userID;
     FirebaseUser currentUser;
 
-    DatabaseReference presenceReference;
-    DatabaseReference currCourtReference;
+
+    DatabaseReference presenceReference, usernameReference, emailReference, currCourtReference;
     DocumentReference courtDocRef;
     CollectionReference crowdColRef;
 
@@ -79,6 +79,9 @@ public class LandingPage extends AppCompatActivity implements OnMapReadyCallback
     String userId;
     String currCourtId;
     String thisCurrCourtId;
+    View headerView;
+    TextView naviUsername;
+    TextView naviEmail;
 
     //Store all intents.
     Intent courtIntents;
@@ -96,41 +99,51 @@ public class LandingPage extends AppCompatActivity implements OnMapReadyCallback
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_landing_page);
 
-        toolbar                         = findViewById(R.id.toolbar);
-        DrawerLayout drawer             = findViewById(R.id.drawer_layout);
-        NavigationView navigationView   = findViewById(R.id.nav_view);
-        currentCourt                    = (TextView) findViewById(R.id.currentCourt);
-        manageButton                    = (Button) findViewById(R.id.manageButton);
+        toolbar         = findViewById(R.id.toolbar);
+        drawer          = findViewById(R.id.drawer_layout);
+        navigationView  = findViewById(R.id.nav_view);
+        currentCourt    = (TextView) findViewById(R.id.currentCourt);
+        enterButton     = (Button) findViewById(R.id.enterButton);
+        refreshButton   = (Button) findViewById(R.id.refreshButton);
 
 
         //Create firebase instance.
-        fAuth                           = FirebaseAuth.getInstance();
-        fStore                          = FirebaseFirestore.getInstance();
-        firebaseDatabase                = FirebaseDatabase.getInstance("https://basketball-court-crowd-checker-default-rtdb.firebaseio.com/");
-        databaseReference               = firebaseDatabase.getReference();
+        fAuth = FirebaseAuth.getInstance();
+        fStore = FirebaseFirestore.getInstance();
+        firebaseDatabase = FirebaseDatabase.getInstance("https://basketball-court-crowd-checker-default-rtdb.firebaseio.com/");
+        databaseReference = firebaseDatabase.getReference();
+
+        //Navigation drawer stuff.
+        headerView = navigationView.getHeaderView(0);
+        naviUsername = headerView.findViewById(R.id.naviUsername);
+        naviEmail = headerView.findViewById(R.id.naviEmail);
 
         //User stuff.
-        currentUser                     = fAuth.getCurrentUser();
-        userId                          = currentUser.getUid();
-        presenceReference               = databaseReference.child(userId).child("presence");
-        currCourtReference              = databaseReference.child(userId).child("currentCourt");
+        currentUser = fAuth.getCurrentUser();
+        userId = currentUser.getUid();
+        usernameReference = databaseReference.child(userId).child("name");
+        emailReference = databaseReference.child(userId).child("email");
+        presenceReference = databaseReference.child(userId).child("presence");
+        currCourtReference = databaseReference.child(userId).child("currentCourt");
 
-        mf                              = (MapFragment) getFragmentManager().findFragmentById(R.id.mapMap);
-
-        manageButton.setOnClickListener(new View.OnClickListener() {
+        refreshButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                startActivity(new Intent(getApplicationContext(), ManagePage.class));
+                startActivity(new Intent(getApplicationContext(), LandingPage.class));
             }
         });
 
+        mf = (MapFragment) getFragmentManager().findFragmentById(R.id.mapMap);
 
         courtIntents = new Intent(LandingPage.this, CourtPage.class);
 
         //Sync map.
         mf.getMapAsync(this);
+
+        enterButton.setVisibility(View.GONE);
 
         //Set support action bar.
         setSupportActionBar(toolbar);
@@ -148,31 +161,59 @@ public class LandingPage extends AppCompatActivity implements OnMapReadyCallback
         NavigationUI.setupActionBarWithNavController(this, navController, mAppBarConfiguration);
         NavigationUI.setupWithNavController(navigationView, navController);
 
+
+        //Set user name and email for navigation drawer.
+        usernameReference.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DataSnapshot> task) {
+                if (!task.isSuccessful()) {
+                    Log.e("firebase", "Error getting data", task.getException());
+                } else {
+
+                    //Set email.
+                    emailReference.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+                        @Override
+                        public void onComplete(@NonNull Task<DataSnapshot> task) {
+                            if (!task.isSuccessful()) {
+                                Log.e("firebase", "Error getting data", task.getException());
+                            } else {
+                                String emailText = String.valueOf(task.getResult().getValue());
+                                Log.d("firebase", String.valueOf(task.getResult().getValue()));
+                                //Set email.
+                                naviEmail.setText(emailText);
+                            }
+                        }
+                    });
+
+                    //Set name.
+                    String userNameText = String.valueOf(task.getResult().getValue());
+                    naviUsername.setText(userNameText);
+                }
+            }
+        });
+
+
         //Navigation drawer listener.
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
 
             public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
                 int id = menuItem.getItemId();
                 //it's possible to do more actions on several items, if there is a large amount of items I prefer switch(){case} instead of if()
-                if (id==R.id.nav_map){
+                if (id == R.id.nav_map) {
                     startActivity(new Intent(getApplicationContext(), LandingPage.class));
-                }
-                else if (id==R.id.nav_account){
+                } else if (id == R.id.nav_account) {
                     startActivity(new Intent(getApplicationContext(), AccountPage.class));
-                }
-                else if (id==R.id.nav_manage){
+                } else if (id == R.id.nav_manage) {
                     startActivity(new Intent(getApplicationContext(), ManagePage.class));
-                }
-                else if (id==R.id.nav_settings){
-                    startActivity(new Intent(getApplicationContext(), SettingsPage.class));
-                }
-                else if (id==R.id.nav_logout){
+                } else if (id == R.id.nav_about) {
+                    startActivity(new Intent(getApplicationContext(), AboutPage.class));
+                } else if (id == R.id.nav_logout) {
                     FirebaseAuth.getInstance().signOut();//logout
                     startActivity(new Intent(getApplicationContext(), LoginPage.class));
                     finish();
                 }
                 //This is for maintaining the behavior of the Navigation view
-                NavigationUI.onNavDestinationSelected(menuItem,navController);
+                NavigationUI.onNavDestinationSelected(menuItem, navController);
                 //This is for closing the drawer after acting on it
                 drawer.closeDrawer(GravityCompat.START);
                 return true;
@@ -200,10 +241,24 @@ public class LandingPage extends AppCompatActivity implements OnMapReadyCallback
 
         //Set camera location and zoom(currently Dublin).
         //mapMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(53.34433532118153,-6.265035915434364), 10));
-        mapMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(getMyLocation().latitude, getMyLocation().longitude), 10));
+        mapMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(getMyLocation().latitude, getMyLocation().longitude), 13));
 
-
+        //Check permissions.
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        //Set location to true.
+        mapMap.setMyLocationEnabled(true);
+        //Zoom and currLocation settings enabled.
         mapMap.getUiSettings().setZoomControlsEnabled(true);
+        mapMap.getUiSettings().setMyLocationButtonEnabled(true);
         //Calls onMapLoaded when layout done.
         mapMap.setOnMapLoadedCallback(this);
     }
@@ -268,7 +323,17 @@ public class LandingPage extends AppCompatActivity implements OnMapReadyCallback
         courtIntents.putExtra("courtTitleIntent", marker.getTitle());
         courtIntents.putExtra("courtLatIntent", marker.getPosition().latitude);
         courtIntents.putExtra("courtLongIntent", marker.getPosition().longitude);
-        startActivity(courtIntents);
+
+        enterButton.setVisibility(View.VISIBLE);
+        enterButton.setText("Enter Court: " + marker.getTitle());
+
+        enterButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+
+                startActivity(courtIntents);
+            }
+        });
+
         return false;
 
     }
@@ -311,6 +376,7 @@ public class LandingPage extends AppCompatActivity implements OnMapReadyCallback
 
                     GeoPoint geoPoint = documentSnapshot.getGeoPoint("location");
                     String name = documentSnapshot.getString("name");
+                    String crowd = documentSnapshot.getLong("crowd").toString();
 
                     double lat = geoPoint.getLatitude();
                     double lng = geoPoint.getLongitude();
@@ -318,14 +384,13 @@ public class LandingPage extends AppCompatActivity implements OnMapReadyCallback
 
                     mapMap.addMarker(new MarkerOptions()
                             .position(new LatLng(lat, lng))
-                            .title(name)
+                            .title(name + " (" + crowd + ")")
                     );
                 }
             });
         }
 
     }
-
 
 
 }
