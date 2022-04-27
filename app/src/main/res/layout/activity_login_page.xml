@@ -84,7 +84,7 @@
 
     <EditText
         android:id="@+id/loginEmail"
-        android:layout_width="320dp"
+        android:layout_width="360dp"
         android:layout_height="40dp"
         android:layout_marginTop="10dp"
         android:background="@color/white"
@@ -93,7 +93,7 @@
         android:inputType="textEmailAddress"
         android:padding="10dp"
         android:textColor="@color/black"
-        android:textSize="15sp"
+        android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -102,7 +102,7 @@
 
     <EditText
         android:id="@+id/loginPassword"
-        android:layout_width="320dp"
+        android:layout_width="360dp"
         android:layout_height="40dp"
         android:layout_marginTop="5dp"
         android:background="@color/white"
@@ -111,7 +111,7 @@
         android:inputType="textPassword"
         android:padding="10dp"
         android:textColor="@color/black"
-        android:textSize="15sp"
+        android:textSize="12sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

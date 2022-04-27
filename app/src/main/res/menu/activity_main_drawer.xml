@@ -20,6 +20,11 @@
             android:title="Manage status" />
 
         <item
+            android:id="@+id/nav_submit"
+            android:icon="@android:drawable/stat_sys_upload"
+            android:title="Submit a court" />
+
+        <item
             android:id="@+id/nav_about"
             android:icon="@android:drawable/ic_dialog_info"
             android:title="About" />

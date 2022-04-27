@@ -89,6 +89,11 @@ public class RegisterPage extends AppCompatActivity {
                 final String ratedCourt         = "";
                 final FirebaseDatabase database = FirebaseDatabase.getInstance();
 
+                //Regex for phone number to match 9999999999, 1-999-999-9999 and 999-999-9999.
+                String phoneRegex = "^(1\\-)?[0-9]{3}\\-?[0-9]{3}\\-?[0-9]{4}$";
+                //Regex for full name to match Michael Jordan.
+                String nameRegex = "^[A-Z][a-z]{2,}(?: [A-Z][a-z]*)*$";
+
                 //Error detections.
                 if(TextUtils.isEmpty(email)){
                     registerEmail.setError("Require an Email.");
@@ -96,6 +101,10 @@ public class RegisterPage extends AppCompatActivity {
                 }
                 if(TextUtils.isEmpty(password)){
                     registerPassword.setError("Require a password.");
+                    return;
+                }
+                if (!fullName.matches(nameRegex)) {
+                    registerFullName.setError("Not a valid full name.");
                     return;
                 }
                 if(password.length() < 6){
@@ -106,6 +115,15 @@ public class RegisterPage extends AppCompatActivity {
                     registerPassword.setError("Password needs to have at least 1 uppercase, 1 lowercase and 1 digit.");
                     return;
                 }
+                if(TextUtils.isEmpty(phoneNumber)){
+                    registerPhoneNumber.setError("Require a phone number.");
+                    return;
+                }
+                if (!phoneNumber.matches(phoneRegex)) {
+                    registerPhoneNumber.setError("Not a valid phone number.");
+                    return;
+                }
+
 
                 //Set progress bar to be visible.
                 registerProgressBar.setVisibility(View.VISIBLE);

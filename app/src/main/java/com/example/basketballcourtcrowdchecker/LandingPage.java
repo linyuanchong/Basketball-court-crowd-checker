@@ -205,6 +205,8 @@ public class LandingPage extends AppCompatActivity implements OnMapReadyCallback
                     startActivity(new Intent(getApplicationContext(), AccountPage.class));
                 } else if (id == R.id.nav_manage) {
                     startActivity(new Intent(getApplicationContext(), ManagePage.class));
+                } else if (id == R.id.nav_submit) {
+                    startActivity(new Intent(getApplicationContext(), SubmitPage.class));
                 } else if (id == R.id.nav_about) {
                     startActivity(new Intent(getApplicationContext(), AboutPage.class));
                 } else if (id == R.id.nav_logout) {

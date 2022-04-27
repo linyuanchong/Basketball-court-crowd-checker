@@ -114,7 +114,6 @@ public class CourtPage extends AppCompatActivity implements OnMapReadyCallback, 
         courtTitle = extras.getString("courtTitleIntent");
         courtLat = extras.getDouble("courtLatIntent");
         courtLong = extras.getDouble("courtLongIntent");
-        System.out.println(courtLat + ", " + courtLong);
         courtName.setText(courtTitle);
 
         //Get all instances.
