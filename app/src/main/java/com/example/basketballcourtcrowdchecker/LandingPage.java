@@ -17,6 +17,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -125,27 +126,6 @@ public class LandingPage extends AppCompatActivity implements OnMapReadyCallback
             }
         });
 
-        //Read once.
-        currCourtReference.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DataSnapshot> task) {
-                if (!task.isSuccessful()) {
-                    Log.e("firebase", "Error getting data", task.getException());
-                }
-                else {
-                    currCourtId = String.valueOf(task.getResult().getValue());
-
-                    if (currCourtId.equals("none")) {
-                        currentCourt.setText("You are currently not checked in into any courts. Select a court to check in.");
-                    }
-                    else {
-                        Log.d("firebase", String.valueOf(task.getResult().getValue()));
-                        displayCurrCourt(currCourtId);
-                    }
-                }
-            }
-        });
-
 
         courtIntents = new Intent(LandingPage.this, CourtPage.class);
 
@@ -219,7 +199,9 @@ public class LandingPage extends AppCompatActivity implements OnMapReadyCallback
         this.mapMap = mapMap;
 
         //Set camera location and zoom(currently Dublin).
-        mapMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(53.34433532118153,-6.265035915434364), 10));
+        //mapMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(53.34433532118153,-6.265035915434364), 10));
+        mapMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(getMyLocation().latitude, getMyLocation().longitude), 10));
+
 
         mapMap.getUiSettings().setZoomControlsEnabled(true);
         //Calls onMapLoaded when layout done.
@@ -237,10 +219,12 @@ public class LandingPage extends AppCompatActivity implements OnMapReadyCallback
         if (myLocation == null) {
             Toast.makeText(this, "Unable to access your location. Consider enabling Location in your device's Settings.", Toast.LENGTH_LONG).show();
         } else {
-            mapMap.addMarker(new MarkerOptions()
-                    .position(myLocation)
-                    .title("ME!")
-            );
+            //mapMap.addMarker(new MarkerOptions()
+            //        .position(myLocation)
+            //        .title("ME!")
+            //        .icon(BitmapDescriptorFactory
+            //                .defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
+            //);
         }
     }
 
@@ -278,23 +262,15 @@ public class LandingPage extends AppCompatActivity implements OnMapReadyCallback
 
     @Override
     public boolean onMarkerClick(Marker marker) {
-        if (myLocation != null) {
-            LatLng markerLatLng = marker.getPosition();
-            mapMap.addPolyline(new PolylineOptions()
-                    .add(myLocation)
-                    .add(markerLatLng)
-            );
-            return true;
-        } else {
 
-            //Save location title intent.
-            courtIntents.putExtra("courtIdIntent", marker.getId());
-            courtIntents.putExtra("courtTitleIntent", marker.getTitle());
-            courtIntents.putExtra("courtLatIntent", marker.getPosition().latitude);
-            courtIntents.putExtra("courtLongIntent", marker.getPosition().longitude);
-            startActivity(courtIntents);
-            return false;
-        }
+        //Save location title intent.
+        courtIntents.putExtra("courtIdIntent", marker.getId());
+        courtIntents.putExtra("courtTitleIntent", marker.getTitle());
+        courtIntents.putExtra("courtLatIntent", marker.getPosition().latitude);
+        courtIntents.putExtra("courtLongIntent", marker.getPosition().longitude);
+        startActivity(courtIntents);
+        return false;
+
     }
 
     //1st of two functions to read all courts.
@@ -350,17 +326,6 @@ public class LandingPage extends AppCompatActivity implements OnMapReadyCallback
 
     }
 
-    //Function to display current court.
-    public void displayCurrCourt(String currCourtId) {
 
-        courtDocRef = fStore.collection("courts").document(currCourtId);
-
-        courtDocRef.addSnapshotListener(this, new EventListener<DocumentSnapshot>() {
-            @Override
-            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException error) {
-                currentCourt.setText("You are currently checked in into: " + documentSnapshot.getString("name") + ".");
-            }
-        });
-    }
 
 }

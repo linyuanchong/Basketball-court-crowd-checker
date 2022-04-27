@@ -43,7 +43,7 @@
         android:background="#77000000"
         android:fontFamily="sans-serif-condensed-light"
         android:gravity="center"
-        android:text="currentCourt"
+        android:text='Select a court to check in or press "MANAGE" to manage your current court.'
         android:textColor="#FFFFFF"
         android:textSize="20sp"
         app:layout_constraintBottom_toBottomOf="parent"

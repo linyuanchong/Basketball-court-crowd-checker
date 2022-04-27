@@ -393,6 +393,8 @@ public class CourtPage extends AppCompatActivity implements OnMapReadyCallback, 
 
                 currCourtRating = (currCourtRating + userRating)/currCourtRated;
 
+                System.out.println("______________________" + currCourtRating);
+
                 courtDocRef.update("rating", currCourtRating);
 
             }
