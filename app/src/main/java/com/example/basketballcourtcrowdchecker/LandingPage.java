@@ -132,6 +132,7 @@ public class LandingPage extends AppCompatActivity implements OnMapReadyCallback
             }
         });
 
+
         courtIntents = new Intent(LandingPage.this, CourtPage.class);
 
         //Sync map.
@@ -343,7 +344,7 @@ public class LandingPage extends AppCompatActivity implements OnMapReadyCallback
         courtDocRef.addSnapshotListener(this, new EventListener<DocumentSnapshot>() {
             @Override
             public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException error) {
-                currentCourt.setText("You are currently checked in into: " + documentSnapshot.getString("name") + ". Go to the current court menu to check in or check out.");
+                currentCourt.setText("You are currently checked in into: " + documentSnapshot.getString("name") + ".");
             }
         });
     }

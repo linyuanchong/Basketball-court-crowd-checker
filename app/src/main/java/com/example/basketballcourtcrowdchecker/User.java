@@ -7,6 +7,7 @@ public class User {
     private String name;
     private String phone;
     private String currentCourt;
+    private String ratedCourt;
     private boolean presence;
 
     public User() {
@@ -59,5 +60,13 @@ public class User {
 
     public void setPresence(boolean presence) {
         this.presence = presence;
+    }
+
+    public String getRatedCourt() {
+        return ratedCourt;
+    }
+
+    public void setRatedCourt(String ratedCourt) {
+        this.ratedCourt = ratedCourt;
     }
 }

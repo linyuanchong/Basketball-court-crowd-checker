@@ -36,10 +36,12 @@
 
     <TextView
         android:id="@+id/currentCourt"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="350dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="20dp"
         android:layout_marginBottom="140dp"
-        android:fontFamily="@font/aldrich"
+        android:background="#77000000"
+        android:fontFamily="sans-serif-condensed-light"
         android:gravity="center"
         android:text="currentCourt"
         android:textColor="#FFFFFF"
@@ -48,7 +50,25 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/mapMap"
-        app:layout_constraintVertical_bias="0.563" />
+        app:layout_constraintVertical_bias="0.0" />
+
+    <Button
+        android:id="@+id/manageButton"
+        android:layout_width="350dp"
+        android:layout_height="40dp"
+        android:layout_marginTop="20dp"
+        android:fontFamily="sans-serif-condensed-light"
+        android:text="Manage"
+        android:textAllCaps="true"
+        android:textAppearance="@style/TextAppearance.AppCompat.Medium"
+        app:backgroundTint="@color/cardview_dark_background"
+
+        app:layout_constraintBottom_toBottomOf="@+id/nav_host_fragment"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.508"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/currentCourt"
+        map:layout_constraintVertical_bias="0.0" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

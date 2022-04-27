@@ -14,6 +14,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -55,9 +56,17 @@ public class CourtPage extends AppCompatActivity implements OnMapReadyCallback, 
     DatabaseReference databaseRef;
     DatabaseReference presenceReference;
     DatabaseReference currCourtReference;
+    DatabaseReference ratedCourtReference;
     DocumentReference courtDocRef;
     CollectionReference crowdColRef;
     FirebaseUser currentUser;
+    ImageView circleDisplay;
+
+    RadioButton oneStar;
+    RadioButton twoStar;
+    RadioButton threeStar;
+    RadioButton fourStar;
+    RadioButton fiveStar;
 
     private GoogleMap courtMap;
     private LatLng myLocation;
@@ -66,7 +75,9 @@ public class CourtPage extends AppCompatActivity implements OnMapReadyCallback, 
     //User personal data.
     String userId;
     String currCourtId;
+    String ratedCourt;
     boolean presence;
+    int userRating;
 
     //Intents storage.
     String courtId, courtTitle;
@@ -82,12 +93,18 @@ public class CourtPage extends AppCompatActivity implements OnMapReadyCallback, 
         setContentView(R.layout.activity_court_page);
 
         courtIcon       = (ImageView) findViewById(R.id.courtIcon);
+        circleDisplay   = (ImageView) findViewById(R.id.circleDisplay);
         addRatingButton = (Button) findViewById(R.id.addRatingButton);
         checkinButton   = (Button) findViewById(R.id.checkinButton);
         courtName       = (TextView) findViewById(R.id.courtName);
         crowdNum        = (TextView) findViewById(R.id.crowdNum);
         courtRating     = (TextView) findViewById(R.id.courtRating);
         cl              = findViewById(R.id.cl);
+        oneStar         = findViewById(R.id.oneStar);
+        twoStar         = findViewById(R.id.twoStar);
+        threeStar       = findViewById(R.id.threeStar);
+        fourStar        = findViewById(R.id.fourStar);
+        fiveStar        = findViewById(R.id.fiveStar);
 
         //Retrieve intents.
         Bundle extras = getIntent().getExtras();
@@ -111,6 +128,7 @@ public class CourtPage extends AppCompatActivity implements OnMapReadyCallback, 
         databaseRef         = firebaseDatabase.getReference();
         presenceReference   = databaseRef.child(userId).child("presence");
         currCourtReference  = databaseRef.child(userId).child("currentCourt");
+        ratedCourtReference = databaseRef.child(userId).child("ratedCourt");
         courtDocRef         = fStore.collection("courts").document(courtId);
         crowdColRef         = fStore.collection("courts").document(courtId).collection("crowd");
         mf                  = (MapFragment) getFragmentManager().findFragmentById(R.id.courtMap);
@@ -153,19 +171,25 @@ public class CourtPage extends AppCompatActivity implements OnMapReadyCallback, 
                                     if (currCourtId.equals(courtId)) {
                                         checkinButton.setVisibility(View.VISIBLE);
                                         checkinButton.setText("CHECK OUT");
-                                        cl.setBackgroundResource(R.drawable.greenbg);
+                                        circleDisplay.getLayoutParams().height = 60;
+                                        circleDisplay.getLayoutParams().width = 60;
+                                        circleDisplay.setImageResource(R.drawable.greencircle);
                                     }
                                     //Hide button when user is not on the court's page of their current court.
                                     else if (!currCourtId.equals(courtId)) {
                                         checkinButton.setVisibility(View.GONE);
-                                        cl.setBackgroundResource(R.drawable.redbg);
+                                        circleDisplay.getLayoutParams().height = 60;
+                                        circleDisplay.getLayoutParams().width = 60;
+                                        circleDisplay.setImageResource(R.drawable.redcircle);
                                     }
                                 }
                                 //Check in button when user is not checked in at all.
                                 else if (presence == false) {
                                     checkinButton.setVisibility(View.VISIBLE);
                                     checkinButton.setText("CHECK IN");
-                                    cl.setBackgroundResource(R.drawable.greybg);
+                                    circleDisplay.getLayoutParams().height = 60;
+                                    circleDisplay.getLayoutParams().width = 60;
+                                    circleDisplay.setImageResource(R.drawable.whitecircle);
                                 }
                             }
                         }
@@ -214,6 +238,53 @@ public class CourtPage extends AppCompatActivity implements OnMapReadyCallback, 
                             finish();
                             startActivity(getIntent());
                             Log.d("firebase", String.valueOf(task.getResult().getValue()));
+                        }
+                    }
+                });
+            }
+        });
+
+        addRatingButton.setOnClickListener(new View.OnClickListener(){
+            public void onClick(View v){
+
+                if (oneStar.isChecked()) {
+                    userRating = 1;
+                }
+                else if (twoStar.isChecked()) {
+                    userRating = 2;
+                }
+                else if (threeStar.isChecked()) {
+                    userRating = 3;
+                }
+                else if (fourStar.isChecked()) {
+                    userRating = 4;
+                }
+                else if (fiveStar.isChecked()) {
+                    userRating = 5;
+                }
+
+                //Read once.
+                ratedCourtReference.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DataSnapshot> task) {
+                        if (!task.isSuccessful()) {
+                            Log.e("firebase", "Error getting data", task.getException());
+                        }
+                        else {
+                            currCourtId = String.valueOf(task.getResult().getValue());
+                            boolean rated = false;
+
+                            //Check if rated before.
+                            //If yes.
+                            if (currCourtId.contains("_" + courtId + "_")) {
+                                rated = true;
+                            }
+                            //If no.
+                            else if (!currCourtId.contains("_" + courtId + "_")) {
+                                rated = false;
+                            }
+
+                            //calculateRating(userRating, rated);
                         }
                     }
                 });
@@ -291,5 +362,40 @@ public class CourtPage extends AppCompatActivity implements OnMapReadyCallback, 
         }
 
 
+    }
+
+    public void calculateRating(int userRating, boolean rated) {
+
+        //1st time rating.
+        if (rated == false) {
+            courtDocRef.update("rated", FieldValue.increment(1));
+            //Append rated courts.
+            databaseRef.child(userId).child("ratedCourt").get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DataSnapshot> task) {
+                    if (!task.isSuccessful()) {
+                        Log.e("firebase", "Error getting data", task.getException());
+                    }
+                    else {
+                        String ratedCourt = String.valueOf(task.getResult().getValue());
+                        ratedCourtReference.setValue(ratedCourt + "_" + courtId + "_");
+                    }
+                }
+            });
+        }
+
+        courtDocRef.addSnapshotListener(this, new EventListener<DocumentSnapshot>() {
+            @Override
+            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException error) {
+
+                double currCourtRating  = documentSnapshot.getDouble("rating");
+                double currCourtRated   = documentSnapshot.getDouble("rated");
+
+                currCourtRating = (currCourtRating + userRating)/currCourtRated;
+
+                courtDocRef.update("rating", currCourtRating);
+
+            }
+        });
     }
 }
