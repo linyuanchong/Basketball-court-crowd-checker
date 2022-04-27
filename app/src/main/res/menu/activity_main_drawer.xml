@@ -12,7 +12,7 @@
         <item
             android:id="@+id/nav_account"
             android:icon="@android:drawable/ic_menu_myplaces"
-            android:title="My account" />
+            android:title="Manage account" />
 
         <item
             android:id="@+id/nav_manage"
