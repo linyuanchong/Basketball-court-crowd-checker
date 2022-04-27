@@ -3,6 +3,7 @@ package com.example.basketballcourtcrowdchecker;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.media.Image;
 import android.os.Bundle;
 import android.util.Log;
@@ -76,7 +77,6 @@ public class AccountPage extends AppCompatActivity {
         databaseReference   = firebaseDatabase.getReference();
 
         userId              = currentUser.getUid();
-        userEmail           = currentUser.getEmail();
 
         usernameReference   = databaseReference.child(userId).child("name");
         emailReference      = databaseReference.child(userId).child("email");
@@ -104,6 +104,7 @@ public class AccountPage extends AppCompatActivity {
                     userName = String.valueOf(task.getResult().getValue());
                     Log.d("firebase", String.valueOf(task.getResult().getValue()));
 
+                    userEmail           = currentUser.getEmail();
                     accountUsername.setText("Username: " + userName);
                     accountEmail.setText("Email: " + userEmail);
                 }
@@ -127,7 +128,7 @@ public class AccountPage extends AppCompatActivity {
                     manageUsername.setVisibility(View.VISIBLE);
                     manageEmail.setVisibility(View.VISIBLE);
                     managePassword.setVisibility(View.VISIBLE);
-                    accountEditButton.setText("Done");
+                    accountEditButton.setText("Finish and return");
 
                     //Read once.
                     databaseReference.child(userId).child("name").get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
@@ -154,7 +155,7 @@ public class AccountPage extends AppCompatActivity {
                 }
 
                 //To commit.
-                else if (buttonText.equals("Done")) {
+                else if (buttonText.equals("Finish and return")) {
 
                     //Get original password.
                     passwordReference.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
@@ -189,10 +190,7 @@ public class AccountPage extends AppCompatActivity {
                                             user.updateEmail(newEmail);
                                             user.updatePassword(newPassword);
 
-                                            prompt = "Credentials changed successfully.";
-                                            snackbar.make(findViewById(R.id.accountEditButton), prompt,
-                                                    Snackbar.LENGTH_SHORT)
-                                                    .show();
+                                            startActivity(new Intent(getApplicationContext(), LandingPage.class));
 
                                         } else {
                                             Log.d(TAG, "Error auth failed");
@@ -203,34 +201,8 @@ public class AccountPage extends AppCompatActivity {
                             }
                         }
                     });
-                    
-                    userEmail = currentUser.getEmail();
 
-                    databaseReference.child(userId).child("name").get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
-                        @Override
-                        public void onComplete(@NonNull Task<DataSnapshot> task) {
-                            if (!task.isSuccessful()) {
-                                Log.e("firebase", "Error getting data", task.getException());
-                            }
-                            else {
-                                userName = String.valueOf(task.getResult().getValue());
-                                Log.d("firebase", String.valueOf(task.getResult().getValue()));
 
-                                userEmail = currentUser.getEmail();
-                                manageUsername.setText(userName);
-                                manageEmail.setText(userEmail);
-
-                            }
-                        }
-                    });
-
-                    accountUsername.setVisibility(View.VISIBLE);
-                    accountEmail.setVisibility(View.VISIBLE);
-                    accountPassword.setVisibility(View.VISIBLE);
-                    manageUsername.setVisibility(View.GONE);
-                    manageEmail.setVisibility(View.GONE);
-                    managePassword.setVisibility(View.GONE);
-                    accountEditButton.setText("Edit");
                 }
 
             }

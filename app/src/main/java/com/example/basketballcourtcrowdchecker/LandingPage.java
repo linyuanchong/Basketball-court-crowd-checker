@@ -8,6 +8,8 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.Menu;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -22,6 +24,9 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.navigation.NavigationView;
+import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -52,6 +57,8 @@ import static android.content.ContentValues.TAG;
 public class LandingPage extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnMapLoadedCallback, GoogleMap.OnMarkerClickListener{
 
     private AppBarConfiguration mAppBarConfiguration;
+
+    Button manageButton;
 
     //General declarations.
     Toolbar toolbar;
@@ -95,6 +102,7 @@ public class LandingPage extends AppCompatActivity implements OnMapReadyCallback
         DrawerLayout drawer             = findViewById(R.id.drawer_layout);
         NavigationView navigationView   = findViewById(R.id.nav_view);
         currentCourt                    = (TextView) findViewById(R.id.currentCourt);
+        manageButton                    = (Button) findViewById(R.id.manageButton);
 
 
         //Create firebase instance.
@@ -110,6 +118,12 @@ public class LandingPage extends AppCompatActivity implements OnMapReadyCallback
         currCourtReference              = databaseReference.child(userId).child("currentCourt");
 
         mf                              = (MapFragment) getFragmentManager().findFragmentById(R.id.mapMap);
+
+        manageButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                startActivity(new Intent(getApplicationContext(), ManagePage.class));
+            }
+        });
 
         //Read once.
         currCourtReference.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
