@@ -139,7 +139,7 @@ public class RegisterPage extends AppCompatActivity {
                             currentUser         = fAuth.getCurrentUser();
                             databaseReference   = firebaseDatabase.getReference(currentUser.getUid());
 
-                            addDataToFirebase(email, password, fullName, phoneNumber, currentCourt, presence, ratedCourt);
+                            addDataToFirebase(email, password, fullName, phoneNumber, currentCourt, presence);
 
                             startActivity(new Intent(getApplicationContext(), LandingPage.class));
                         }
@@ -160,7 +160,7 @@ public class RegisterPage extends AppCompatActivity {
         });
     }
 
-    private void addDataToFirebase (String thisEmail, String thisPassword, String thisName, String thisPhone, String thisCurrentCourt, boolean thisPresence, String thisRatedCourt) {
+    private void addDataToFirebase (String thisEmail, String thisPassword, String thisName, String thisPhone, String thisCurrentCourt, boolean thisPresence) {
 
         //Create user object.
         newUser = new User();
@@ -172,7 +172,6 @@ public class RegisterPage extends AppCompatActivity {
         newUser.setPhone(thisPhone);
         newUser.setCurrentCourt(thisCurrentCourt);
         newUser.setPresence(thisPresence);
-        newUser.setRatedCourt(thisRatedCourt);
 
         //Add into database.
         databaseReference.addValueEventListener(new ValueEventListener() {

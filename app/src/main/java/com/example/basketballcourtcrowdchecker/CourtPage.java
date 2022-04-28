@@ -23,6 +23,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -274,6 +275,12 @@ public class CourtPage extends AppCompatActivity implements OnMapReadyCallback, 
     public void onMapReady(GoogleMap courtMap) {
         //Set camera location and zoom.
         courtMap.moveCamera(CameraUpdateFactory.newLatLngZoom(new LatLng(courtLat,courtLong), 15));
+        courtMap.addMarker(new MarkerOptions()
+                .position(new LatLng(courtLat,courtLong))
+                .title("New court here")
+                .icon(BitmapDescriptorFactory
+                        .defaultMarker(BitmapDescriptorFactory.HUE_RED))
+        );
 
     }
 
