@@ -63,11 +63,6 @@ public class CourtPage extends AppCompatActivity implements OnMapReadyCallback, 
     FirebaseUser currentUser;
     ImageView circleDisplay;
 
-    RadioButton oneStar;
-    RadioButton twoStar;
-    RadioButton threeStar;
-    RadioButton fourStar;
-    RadioButton fiveStar;
 
     private GoogleMap courtMap;
     private LatLng myLocation;
@@ -76,9 +71,7 @@ public class CourtPage extends AppCompatActivity implements OnMapReadyCallback, 
     //User personal data.
     String userId;
     String currCourtId;
-    String ratedCourt;
     boolean presence;
-    int userRating;
 
     //Intents storage.
     String courtId, courtTitle;
@@ -95,18 +88,11 @@ public class CourtPage extends AppCompatActivity implements OnMapReadyCallback, 
 
         courtIcon       = (ImageView) findViewById(R.id.courtIcon);
         circleDisplay   = (ImageView) findViewById(R.id.circleDisplay);
-        addRatingButton = (Button) findViewById(R.id.addRatingButton);
         checkinButton   = (Button) findViewById(R.id.checkinButton);
         homeButton1     = (Button) findViewById(R.id.homeButton1);
         courtName       = (TextView) findViewById(R.id.courtName);
         crowdNum        = (TextView) findViewById(R.id.crowdNum);
-        courtRating     = (TextView) findViewById(R.id.courtRating);
         cl              = findViewById(R.id.cl);
-        oneStar         = findViewById(R.id.oneStar);
-        twoStar         = findViewById(R.id.twoStar);
-        threeStar       = findViewById(R.id.threeStar);
-        fourStar        = findViewById(R.id.fourStar);
-        fiveStar        = findViewById(R.id.fiveStar);
 
         //Retrieve intents.
         Bundle extras = getIntent().getExtras();
@@ -148,8 +134,7 @@ public class CourtPage extends AppCompatActivity implements OnMapReadyCallback, 
             public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException error) {
                 courtName.setText(documentSnapshot.getString("name"));
                 crowdNum.setText("Crowd: " + documentSnapshot.getLong("crowd").toString());
-                courtRating.setText("Rating: " + documentSnapshot.getDouble("rating").toString() + "(" + documentSnapshot.getLong("rated").toString() + ")");
-            }
+                }
         });
 
         //Check presence and define display.
@@ -251,52 +236,7 @@ public class CourtPage extends AppCompatActivity implements OnMapReadyCallback, 
             }
         });
 
-        addRatingButton.setOnClickListener(new View.OnClickListener(){
-            public void onClick(View v){
 
-                if (oneStar.isChecked()) {
-                    userRating = 1;
-                }
-                else if (twoStar.isChecked()) {
-                    userRating = 2;
-                }
-                else if (threeStar.isChecked()) {
-                    userRating = 3;
-                }
-                else if (fourStar.isChecked()) {
-                    userRating = 4;
-                }
-                else if (fiveStar.isChecked()) {
-                    userRating = 5;
-                }
-
-                //Read once.
-                ratedCourtReference.get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
-                    @Override
-                    public void onComplete(@NonNull Task<DataSnapshot> task) {
-                        if (!task.isSuccessful()) {
-                            Log.e("firebase", "Error getting data", task.getException());
-                        }
-                        else {
-                            currCourtId = String.valueOf(task.getResult().getValue());
-                            boolean rated = false;
-
-                            //Check if rated before.
-                            //If yes.
-                            if (currCourtId.contains("_" + courtId + "_")) {
-                                rated = true;
-                            }
-                            //If no.
-                            else if (!currCourtId.contains("_" + courtId + "_")) {
-                                rated = false;
-                            }
-
-                            //calculateRating(userRating, rated);
-                        }
-                    }
-                });
-            }
-        });
     }
 
     //Check in or ot function.
@@ -371,40 +311,5 @@ public class CourtPage extends AppCompatActivity implements OnMapReadyCallback, 
 
     }
 
-    public void calculateRating(int userRating, boolean rated) {
 
-        //1st time rating.
-        if (rated == false) {
-            courtDocRef.update("rated", FieldValue.increment(1));
-            //Append rated courts.
-            databaseRef.child(userId).child("ratedCourt").get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
-                @Override
-                public void onComplete(@NonNull Task<DataSnapshot> task) {
-                    if (!task.isSuccessful()) {
-                        Log.e("firebase", "Error getting data", task.getException());
-                    }
-                    else {
-                        String ratedCourt = String.valueOf(task.getResult().getValue());
-                        ratedCourtReference.setValue(ratedCourt + "_" + courtId + "_");
-                    }
-                }
-            });
-        }
-
-        courtDocRef.addSnapshotListener(this, new EventListener<DocumentSnapshot>() {
-            @Override
-            public void onEvent(@Nullable DocumentSnapshot documentSnapshot, @Nullable FirebaseFirestoreException error) {
-
-                double currCourtRating  = documentSnapshot.getDouble("rating");
-                double currCourtRated   = documentSnapshot.getDouble("rated");
-
-                currCourtRating = (currCourtRating + userRating)/currCourtRated;
-
-                System.out.println("______________________" + currCourtRating);
-
-                courtDocRef.update("rating", currCourtRating);
-
-            }
-        });
-    }
 }
