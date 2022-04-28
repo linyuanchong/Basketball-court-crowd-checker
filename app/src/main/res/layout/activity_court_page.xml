@@ -35,7 +35,7 @@
     <TextView
         android:id="@+id/courtName"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="30dp"
         android:layout_marginTop="30dp"
         android:background="#FFFFFF"
         android:fontFamily="sans-serif-condensed-light"
@@ -52,7 +52,7 @@
     <TextView
         android:id="@+id/crowdNum"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_height="30dp"
         android:layout_marginTop="30dp"
         android:background="#FFFFFF"
         android:fontFamily="sans-serif-condensed-light"
