@@ -23,13 +23,29 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+
+import java.util.HashMap;
+import java.util.Map;
 
 public class SubmitPage extends AppCompatActivity implements OnMapReadyCallback, GoogleMap.OnMapLoadedCallback, GoogleMap.OnMarkerClickListener {
 
-    EditText latEdit, longEdit;
-    Button goButton, homeButton4;
+    EditText latEdit, longEdit, nameEdit;
+    Button goButton, submitButton, homeButton4;
+
+    FirebaseFirestore fStore;
+    FirebaseAuth fAuth;
+    DocumentReference submissionsRef;
 
     String currLat, currLong;
+
+    //For prompting.
+    Snackbar snackbar;
+    String prompt;
 
     private GoogleMap mapMap;
     private LatLng myLocation;
@@ -42,9 +58,14 @@ public class SubmitPage extends AppCompatActivity implements OnMapReadyCallback,
 
         latEdit        = (EditText) findViewById(R.id.latEdit);
         longEdit       = (EditText) findViewById(R.id.longEdit);
+        nameEdit       = (EditText) findViewById(R.id.nameEdit);
         goButton       = (Button) findViewById(R.id.goButton);
+        submitButton   = (Button) findViewById(R.id.submitButton);
         homeButton4    = (Button) findViewById(R.id.homeButton4);
         mf             = (MapFragment) getFragmentManager().findFragmentById(R.id.submitMap);
+
+        fAuth          = FirebaseAuth.getInstance();
+        fStore         = FirebaseFirestore.getInstance();
 
         //Sync map.
         mf.getMapAsync(this);
@@ -61,6 +82,7 @@ public class SubmitPage extends AppCompatActivity implements OnMapReadyCallback,
             }
         });
 
+        //Go to location.
         goButton.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
 
@@ -84,18 +106,61 @@ public class SubmitPage extends AppCompatActivity implements OnMapReadyCallback,
 
                 mapMap.moveCamera(CameraUpdateFactory.newLatLngZoom(targetLoc, 15));
 
+                //Clear all markers.
                 mapMap.clear();
+                //Add marker to designated location.
                 mapMap.addMarker(new MarkerOptions()
                         .position(targetLoc)
-                        .title("New Court")
+                        .title("New court here")
                         .icon(BitmapDescriptorFactory
                                 .defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
                 );
             }
         });
 
+        submitButton.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
 
+                System.out.println("____________________________________");
+                double newLatDoub, newLongDoub;
+                String newLat = latEdit.getText().toString();
+                String newLong = longEdit.getText().toString();
+                String newName = nameEdit.getText().toString();
 
+                if (newLat.isEmpty()) {
+                    latEdit.setError("Provide a latitude.");
+                    return;
+                }
+                else if (newLong.isEmpty()) {
+                    latEdit.setError("Provide a longitude.");
+                    return;
+                }
+                else if (newName.isEmpty()) {
+                    nameEdit.setError("Provide a name for court submission.");
+                    return;
+                }
+
+                newLatDoub = Double.parseDouble(newLat);
+                newLongDoub = Double.parseDouble(newLong);
+
+                String submissionId = fAuth.getCurrentUser().getUid() + "submit";
+
+                //Create and store data using hashmap.
+                Map<String, Object> newCourt = new HashMap<>();
+                //Store values into user hashmap.
+                newCourt.put("latitude", newLatDoub);
+                newCourt.put("longitude", newLongDoub);
+                newCourt.put("name", newName);
+                newCourt.put("contributor", fAuth.getCurrentUser().getUid());
+
+                fStore.collection("submissions").document(submissionId).set(newCourt);
+
+                prompt = "Submitted. One user can only have one submission at a time, next submission will replace the previous.";
+                snackbar.make(findViewById(R.id.submitButton), prompt,
+                        Snackbar.LENGTH_SHORT)
+                        .show();
+            }
+        });
 
     }
 
