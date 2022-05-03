@@ -260,7 +260,7 @@ public class AccountPage extends AppCompatActivity {
                                     return;
                                 }
 
-                                //Update username.
+                                //Update fields.
                                 usernameReference.setValue(newUsername);
                                 emailReference.setValue(newEmail);
                                 passwordReference.setValue(newPassword);
