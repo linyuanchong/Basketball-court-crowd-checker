@@ -244,6 +244,7 @@ public class CourtPage extends AppCompatActivity implements OnMapReadyCallback, 
     public void checkInOrOut() {
         if (presence == false) {
             courtDocRef.update("crowd", FieldValue.increment(1));
+
         }
         else if (presence == true) {
             courtDocRef.update("crowd", FieldValue.increment(-1));
